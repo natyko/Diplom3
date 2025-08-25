@@ -1,122 +1,86 @@
-# from selenium.webdriver.support.ui import WebDriverWait
-# from selenium.webdriver.support import expected_conditions as EC
-# from selenium.common.exceptions import TimeoutException
-# from selenium.webdriver import ActionChains
-#
-# class BasePage:
-#     def __init__(self, driver, url=None, timeout=10):
-#         self.driver = driver
-#         self.url = url
-#         self.timeout = timeout
-#
-#     def open(self):
-#         self.driver.get(self.url)
-#
-#     def wait(self, condition, timeout=None):
-#         return WebDriverWait(self.driver, timeout or self.timeout).until(condition)
-#
-#     def is_element_present(self, locator, timeout=None):
-#         try:
-#             self.wait(EC.presence_of_element_located(locator), timeout)
-#             return True
-#         except TimeoutException:
-#             return False
-#
-#     def is_element_visible(self, locator, timeout=None):
-#         try:
-#             self.wait(EC.visibility_of_element_located(locator), timeout)
-#             return True
-#         except TimeoutException:
-#             return False
-#
-#     def find_element(self, locator, timeout=None):
-#         return self.wait(EC.presence_of_element_located(locator), timeout)
-#
-#     def click_element(self, locator, timeout=None):
-#         self.find_element(locator, timeout).click()
-#
-#     def send_keys_to_element(self, locator, keys, timeout=None):
-#         element = self.wait(EC.element_to_be_clickable(locator), timeout)
-#         element.clear()
-#         element.send_keys(keys)
-#
-#     def drag_and_drop(self, source_locator, target_locator, timeout=None):
-#         source = self.wait(EC.element_to_be_clickable(source_locator), timeout)
-#         target = self.wait(EC.presence_of_element_located(target_locator), timeout)
-#         ActionChains(self.driver).drag_and_drop(source, target).perform()
-
 import allure
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support import expected_conditions as EC
 
 
-class BasePage():
+class BasePage:
     def __init__(self, driver):
         self.driver = driver
 
-    @allure.step("Находим элемент")
+    @allure.step("Find element")
     def find_element(self, locator):
         return self.driver.find_element(*locator)
 
+    @allure.step("Get element text")
     def text_of_element(self, locator):
         return self.driver.find_element(*locator).text
 
-    @allure.step("Кликаем на элемент")
+    @allure.step("Click element")
     def click_on_element(self, locator):
         self.driver.find_element(*locator).click()
 
-    @allure.step("Заполняем поле ввода")
+    @allure.step("Fill input field")
     def fill_input(self, locator, text):
         self.wait_visibility_of_element(locator)
         self.driver.find_element(*locator).send_keys(text)
 
-    @allure.step("Дожидаемся пока элемент станет видимым")
-    def wait_visibility_of_element(self, locator):
-        return WebDriverWait(self.driver, 3).until(
-            expected_conditions.visibility_of_element_located(locator))
+    @allure.step("Wait for element to be visible")
+    def wait_visibility_of_element(self, locator, timeout=10):
+        return WebDriverWait(self.driver, timeout).until(
+            EC.visibility_of_element_located(locator)
+        )
 
+    @allure.step("Wait for text to appear in element")
     def wait_text_of_element(self, locator, text):
         return WebDriverWait(self.driver, 10).until(
-            expected_conditions.text_to_be_present_in_element(locator, text))
+            expected_conditions.text_to_be_present_in_element(locator, text)
+        )
 
+    @allure.step("Wait for element to be clickable")
     def wait_for_element_to_be_clickable(self, locator):
         return WebDriverWait(self.driver, 10).until(
-            expected_conditions.element_to_be_clickable(locator))
+            expected_conditions.element_to_be_clickable(locator)
+        )
 
+    @allure.step("Close modal window")
     def wait_order_modal_window_closed(self, locator):
         return WebDriverWait(self.driver, 5).until(
-            expected_conditions.invisibility_of_element(locator))
+            expected_conditions.invisibility_of_element(locator)
+        )
 
-    @allure.step("Скроллим до элемента")
+    @allure.step("Scroll to element")
     def scroll_to_element(self, locator):
-        self.driver.execute_script("arguments[0].scrollIntoView();",
-                                   self.driver.find_element(*locator))
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView();", self.driver.find_element(*locator)
+        )
 
-    @allure.step("Элемент виден")
+    @allure.step("Check if element is visible")
     def visibility_of_element(self, locator):
         return self.driver.find_element(*locator).is_displayed()
 
-    @allure.step("Текущий дескриптор окна")
+    @allure.step("Get current window handle")
     def current_window_handle(self):
         return self.driver.current_window_handle
 
-    @allure.step("Ожидание")
+    @allure.step("Wait")
     def wait(self):
         return WebDriverWait(self.driver, 10)
 
-    @allure.step("Все открытые вкладки")
+    @allure.step("Get all window handles")
     def window_handles(self):
         return self.driver.window_handles
 
-    @allure.step("Делаем другую вкладку текущей")
+    @allure.step("Switch to new window")
     def switch_to_window(self, window):
         self.driver.switch_to.window(window)
 
-    @allure.step("Текущий url")
+    @allure.step("Get current URL")
     def current_url(self):
         return self.driver.current_url
 
+    @allure.step("Drag and drop element")
     def move_element(self, locator_source, locator_target):
         source = self.driver.find_element(*locator_source)
         target = self.driver.find_element(*locator_target)

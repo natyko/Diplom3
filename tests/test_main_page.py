@@ -4,22 +4,22 @@ from pages.main_page import MainPage
 from tests.conftest import driver_signed_in
 
 
-@allure.feature("Главная страница")
+@allure.feature("Main Page")
 class TestMainPage:
-    @allure.description("Переход по клику на «Конструктор»")
+    @allure.description("Navigate by clicking on 'Constructor'")
     def test_constructor_link(self, driver):
         constructor_link = MainPage(driver)
         constructor_link.click_in_constructor()
         assert constructor_link.buns_link_is_visible()
 
-    @allure.description("Переход по клику на «Лента заказов»")
+    @allure.description("Navigate by clicking on 'Order Feed'")
     def test_order_feed(self, driver):
         order_feed = MainPage(driver)
         order_feed.click_in_order_feed()
         order_feed.wait_for_order_feed_header()
         assert order_feed.order_feed_header_is_visible()
 
-    @allure.description("Если кликнуть на ингредиент, появится всплывающее окно с деталями")
+    @allure.description("Clicking on ingredient opens modal window with details")
     def test_modal_window_is_seen(self, driver):
         modal_window = MainPage(driver)
         modal_window.click_in_constructor()
@@ -28,7 +28,7 @@ class TestMainPage:
         modal_window.wait_for_modal_window()
         assert modal_window.close_modal_window_button_is_visible()
 
-    @allure.description("Всплывающее окно закрывается кликом по крестику")
+    @allure.description("Modal window closes by clicking the close button")
     def test_close_modal_window(self, driver):
         modal_window = MainPage(driver)
         modal_window.click_in_constructor()
@@ -38,7 +38,7 @@ class TestMainPage:
         modal_window.close_modal_window()
         assert modal_window.buns_link_is_visible()
 
-    @allure.description("При добавлении ингредиента в заказ, увеличивается каунтер данного ингредиента")
+    @allure.description("Adding ingredient to order increases ingredient counter")
     def test_counter(self, driver):
         counter = MainPage(driver)
         counter.click_in_constructor()
@@ -46,8 +46,7 @@ class TestMainPage:
         counter.drag_and_drop_bun()
         assert counter.bun_counter_is_visible()
 
-    @allure.description(
-        "Залогиненный пользователь может оформить заказ")
+    @allure.description("Logged in user can place an order")
     def test_make_order_success(self, driver_signed_in):
         order = MainPage(driver_signed_in)
         order.wait_for_bun()

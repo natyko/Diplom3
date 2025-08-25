@@ -6,7 +6,6 @@ from locators.main_page_locators import MainPageLocators
 from pages.base_page import BasePage
 
 
-
 class PersonalAccountPage(BasePage):
     def __init__(self, driver):
         super().__init__(driver)
@@ -14,35 +13,39 @@ class PersonalAccountPage(BasePage):
         self.personal_account_locators = PersonalAccountLocators()
         self.login_page_locators = LoginPageLocators()
 
-    @allure.step("Кликнуть на кнопку Личнй кабинет на главной")
+    @allure.step("Click on Personal Account button on main page")
     def click_on_personal_account_button(self):
         self.click_on_element(self.main_page_locators.PROFILE_BUTTON)
 
-    @allure.step("Кнопка Выйти видна")
+    @allure.step("Logout button is visible")
     def in_personal_account_page(self):
-        return self.visibility_of_element(self.personal_account_locators.SIGN_OUT_LINK_IN_PROFILE)
+        return self.visibility_of_element(
+            self.personal_account_locators.SIGN_OUT_LINK_IN_PROFILE
+        )
 
-    @allure.step("Ожидание кнопки ВЫйти")
+    @allure.step("Wait for logout button")
     def wait_for_log_out_button(self):
-        self.wait_visibility_of_element(self.personal_account_locators.SIGN_OUT_LINK_IN_PROFILE)
+        self.wait_visibility_of_element(
+            self.personal_account_locators.SIGN_OUT_LINK_IN_PROFILE
+        )
 
-    @allure.step("Кликнуть на История заказов")
+    @allure.step("Click on Order History")
     def click_on_order_history_button(self):
         self.click_on_element(self.personal_account_locators.ORDER_HISTORY)
 
-    @allure.step("Ожидание появления заказа")
+    @allure.step("Wait for order to appear")
     def wait_for_order_history_is_displayed(self):
         self.wait_visibility_of_element(self.personal_account_locators.ORDER)
 
-    @allure.step("Заказ виден")
+    @allure.step("Order is visible")
     def order_history_is_displayed(self):
         return self.visibility_of_element(self.personal_account_locators.ORDER)
 
-    @allure.step("Кликнуть на кнопку выйти")
+    @allure.step("Click on logout button")
     def click_log_out_button(self):
         self.click_on_element(self.personal_account_locators.SIGN_OUT_LINK_IN_PROFILE)
 
-    @allure.step("Ожидание пока кнопка Войти будет видна")
+    @allure.step("Wait until Login button is visible")
     def wait_for_log_in_button_is_displayed(self):
         self.wait_visibility_of_element(self.login_page_locators.ENTER_BUTTON)
 

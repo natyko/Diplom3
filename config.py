@@ -1,4 +1,4 @@
-"""Constants used across the project."""
+# Constants used across the project
 
 # Base URLs
 BASE_URL = "https://stellarburgers.nomoreparties.site"
@@ -42,7 +42,7 @@ TEST_DATA = {
     "email_domain": "yopmail.com",
     "ingredient_name": "Краторная булка N-200i",
     "sauce_name": "Соус Spicy-X",
-    "ingredient_ids": ["60d3b41abdacab0026a733c6", "609646e4dc916e00276b2870"],
+    "ingredient_ids": ["61c0c5a71d1f82001bdaaa6d", "61c0c5a71d1f82001bdaaa6f"],
 }
 
 # Expected Messages
