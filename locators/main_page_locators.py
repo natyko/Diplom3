@@ -54,8 +54,16 @@ class MainPageLocators:
     BUN_COUNTER = (By.XPATH, '//p[text()="2"]')
     ORDER_ID = (By.XPATH, '//p[text()="идентификатор заказа"]')
     BUTTON_MAKE_ORDER = (By.XPATH, '//button[text()="Оформить заказ"]')
-    EXTRA_ORDER_MODAL_WINDOW = (By.CLASS_NAME, "Modal_modal__loading__3534A")
+    EXTRA_ORDER_MODAL_WINDOW = (By.XPATH, '//*[contains(@class, "Modal_modal__loading")]')
 
     SAUCES_LINK = (By.XPATH, "//span[text() = 'Соусы']")
     BUNS_LINK = (By.XPATH, "//span[text() = 'Булки']")
     FILLINGS_LINK = (By.XPATH, "//span[text() = 'Начинки']")
+
+    # Additional order feed locators for dynamic searching
+    ORDER_FEED_TEXT_BOX_DIGITS = (
+        By.XPATH,
+        '//div[contains(@class, "OrderFeed_textBox")]/ul/li[contains(@class, "digits")]',
+    )
+    TEXT_TYPE_DIGITS_DEFAULT = (By.XPATH, '//li[contains(@class, "text_type_digits-default")]')
+    ALL_ORDERS_READY = (By.XPATH, '//*[text()="Все текущие заказы готовы!"]')

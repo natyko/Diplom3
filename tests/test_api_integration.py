@@ -3,7 +3,6 @@ API Integration tests showcasing modern hybrid approach
 """
 
 import allure
-import pytest
 from api.user_api import UserAPI
 from api.order_api import OrderAPI
 
@@ -12,73 +11,83 @@ from api.order_api import OrderAPI
 class TestAPIIntegration:
     # Tests demonstrating API + UI hybrid approach
 
-    @allure.description("User creation and management via API")
-    def test_user_management_api(self, test_user_api):
-        # Test user creation, authentication, and cleanup via API
-        # Verify user was created successfully
-        assert "email" in test_user_api
-        assert "access_token" in test_user_api
-        assert test_user_api["api_client"].is_authenticated()
+    @allure.description("User creation via API")
+    def test_user_creation_api(self):
+        with allure.step("Create new user via API"):
+            user_api = UserAPI()
+            user_data = user_api.generate_test_user()
+            
+            response = user_api.register_user(user_data)
+            
+            assert response.status_code == 200, f"User creation failed: {response.text}"
+            data = response.json()
+            assert data["success"] is True
+            assert "user" in data
+            assert data["user"]["email"] == user_data["email"]
 
-        # Test getting user info
-        user_info_response = test_user_api["api_client"].get_user_info()
-        assert user_info_response.status_code == 200
+    @allure.description("Get user information via API")
+    def test_get_user_info_api(self, test_user_api):
+        with allure.step("Get user information via API"):
+            user_info_response = test_user_api["api_client"].get_user_info()
+            assert user_info_response.status_code == 200
 
-        user_data = user_info_response.json()
-        assert user_data["success"] is True
-        assert user_data["user"]["email"] == test_user_api["email"]
+            user_data = user_info_response.json()
+            assert user_data["success"] is True
+            assert user_data["user"]["email"] == test_user_api["email"]
 
-        # Test updating user info
-        updated_name = "Updated API Test User"
-        update_response = test_user_api["api_client"].update_user_info(
-            {"name": updated_name}
-        )
-        assert update_response.status_code == 200
+    @allure.description("Update user information via API")
+    def test_update_user_info_api(self, test_user_api):
+        with allure.step("Update user information via API"):
+            updated_name = "Updated API Test User"
+            update_response = test_user_api["api_client"].update_user_info(
+                {"name": updated_name}
+            )
+            assert update_response.status_code == 200
 
-        # Verify update worked
-        updated_info_response = test_user_api["api_client"].get_user_info()
-        updated_data = updated_info_response.json()
-        assert updated_data["user"]["name"] == updated_name
+        with allure.step("Verify user information was updated"):
+            updated_info_response = test_user_api["api_client"].get_user_info()
+            updated_data = updated_info_response.json()
+            assert updated_data["user"]["name"] == updated_name
 
-    @allure.description("Order creation via API with data validation")
+    @allure.description("Order creation via API")
     def test_order_creation_api(self, order_api_with_auth):
-        # Test order creation via API with data validation
-        # Create order via API
-        order_response = order_api_with_auth.create_test_order()
+        with allure.step("Create order via API"):
+            order_response = order_api_with_auth.create_test_order()
+            
+            assert order_response.status_code == 200, (
+                f"Order creation failed with status {order_response.status_code}: {order_response.text}"
+            )
 
-        # Check if authentication worked
-        if order_response.status_code == 401:
-            pytest.skip("API authentication failed, skipping order test")
+            order_data = order_response.json()
+            assert order_data["success"] is True
+            assert "order" in order_data
+            assert "number" in order_data["order"]
+            assert order_data["order"]["number"] > 0
 
-        assert order_response.status_code == 200, (
-            f"Order creation failed: {order_response.text}"
-        )
+    @allure.description("Verify created order appears in user orders")
+    def test_order_appears_in_user_orders(self, order_api_with_auth):
+        with allure.step("Create order and verify it appears in user order list"):
+            # Create order first
+            order_response = order_api_with_auth.create_test_order()
+            assert order_response.status_code == 200
+            order_data = order_response.json()
+            created_order_number = order_data["order"]["number"]
 
-        # Validate response structure
-        order_data = order_response.json()
-        assert order_data["success"] is True
-        assert "order" in order_data
-        assert "number" in order_data["order"]
-        assert order_data["order"]["number"] > 0
+            # Verify it appears in user's orders
+            user_orders_response = order_api_with_auth.get_user_orders()
+            assert user_orders_response.status_code == 200
 
-        # Verify order appears in user's orders
-        user_orders_response = order_api_with_auth.get_user_orders()
-        assert user_orders_response.status_code == 200
+            user_orders_data = user_orders_response.json()
+            assert user_orders_data["success"] is True
+            assert len(user_orders_data["orders"]) > 0
 
-        user_orders_data = user_orders_response.json()
-        assert user_orders_data["success"] is True
-        assert len(user_orders_data["orders"]) > 0
-
-        # Find our created order
-        created_order_number = order_data["order"]["number"]
-        order_found = False
-        for order in user_orders_data["orders"]:
-            if order["number"] == created_order_number:
-                order_found = True
-                break
-        assert order_found, (
-            f"Created order {created_order_number} not found in user orders"
-        )
+            order_found = any(
+                order["number"] == created_order_number 
+                for order in user_orders_data["orders"]
+            )
+            assert order_found, (
+                f"Created order {created_order_number} not found in user orders"
+            )
 
     @allure.description("Ingredients availability check via API")
     def test_ingredients_api(self):
